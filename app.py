@@ -13,7 +13,7 @@ initialize_db()
 st.set_page_config(page_title="QR Menu App", layout="wide")
 
 # Parse table_id from URL (if exists)
-query_params = st.experimental_get_query_params()
+query_params = st.query_params  # Updated to the new API
 table_id_param = query_params.get("table_id", [None])[0]
 
 # Navigation menu
@@ -83,7 +83,7 @@ elif choice == "Admin Panel":
         qr_table_id = st.text_input("Table ID for QR Code")
         if st.button("Generate QR Code"):
             if qr_table_id:
-                app_url = "https://<your-streamlit-app>.streamlit.app"  # Replace this
+                app_url = "https://<your-streamlit-app>.streamlit.app"  # Replace this with your deployed Streamlit URL
                 full_url = f"{app_url}/?table_id={urllib.parse.quote(qr_table_id)}"
                 generate_qr(full_url)
             else:
