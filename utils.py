@@ -4,7 +4,7 @@ import os
 import streamlit as st
 
 # Replace this with your actual Streamlit app base URL after deployment
-APP_BASE_URL = "https://qr-menu-app-4lotfsdzdjuknw8qhag2gk.streamlit.app/"  # <-- change this!
+APP_BASE_URL = "https://qr-menu-app-ngt9iyrw92m3rknxc85nqm.streamlit.app/"
 
 def generate_qr(table_id):
     # Create the full URL for the QR code
