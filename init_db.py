@@ -61,3 +61,42 @@ def init_db():
 
 if __name__ == "__main__":
     init_db()
+
+
+
+
+def initialize_db():
+    conn = sqlite3.connect("menu.db")
+    c = conn.cursor()
+
+    # Create orders table
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS orders (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            table_id TEXT,
+            items TEXT,
+            instructions TEXT,
+            status TEXT DEFAULT 'Received',
+            timestamp TEXT
+        )
+    ''')
+
+    # Create menu table
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS menu (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category TEXT,
+            name TEXT,
+            description TEXT,
+            price REAL,
+            image_url TEXT,
+            available INTEGER DEFAULT 1
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
+
+# Optional: Run it directly to test
+if __name__ == "__main__":
+    initialize_db()

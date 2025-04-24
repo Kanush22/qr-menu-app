@@ -3,6 +3,10 @@ import streamlit as st
 from utils import generate_qr
 from database import get_menu_items, place_order, get_orders, update_order_status, add_menu_item, update_menu_item_status
 from auth import login_admin
+from init_db import initialize_db
+
+# Call to create tables if missing
+initialize_db()
 
 st.set_page_config(page_title="QR Menu App", layout="wide")
 
