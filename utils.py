@@ -15,7 +15,8 @@ def generate_qr(table_id):
 
     # Save it locally (optional - helpful for printing or debugging)
     os.makedirs("qr_codes", exist_ok=True)
-    path = f"qr_codes/{table_id}.png"
+   
+    path = os.path.join("qr_codes", f"{table_id}.png")
     qr.save(path)
 
     # Show in Streamlit
