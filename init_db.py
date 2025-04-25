@@ -13,13 +13,15 @@ menu_items = [
     ("Uttapam", 40, "https://i.imgur.com/MzN7cWS.jpg", "Available")
 ]
 
+# Updated schema with 'image_url' and 'available' columns
 schema = """
 CREATE TABLE IF NOT EXISTS menu (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     price REAL NOT NULL,
-    image TEXT,
-    status TEXT
+    image_url TEXT,
+    status TEXT,
+    available INTEGER DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -27,8 +29,15 @@ CREATE TABLE IF NOT EXISTS orders (
     table_id TEXT NOT NULL,
     items TEXT NOT NULL,
     instructions TEXT,
-    status TEXT,
+    status TEXT DEFAULT 'Received',
     timestamp TEXT
+);
+
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    role TEXT NOT NULL CHECK(role IN ('admin', 'staff'))
 );
 """
 
@@ -36,67 +45,44 @@ def init_db():
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
-    # Create tables first
+    # Create tables
     cur.executescript(schema)
-
-    # Then ensure columns exist (redundant now, since we're recreating schema, but kept for safety)
-    cur.execute("PRAGMA table_info(menu)")
-    columns = [column[1] for column in cur.fetchall()]
-    if 'status' not in columns:
-        cur.execute("ALTER TABLE menu ADD COLUMN status TEXT")
-        print("✅ Added missing 'status' column to 'menu' table.")
-    if 'image' not in columns:
-        cur.execute("ALTER TABLE menu ADD COLUMN image TEXT")
-        print("✅ Added missing 'image' column to 'menu' table.")
 
     # Clear old items
     cur.execute("DELETE FROM menu")
 
     # Insert new menu items
-    cur.executemany("INSERT INTO menu (name, price, image, status) VALUES (?, ?, ?, ?)", menu_items)
+    cur.executemany("INSERT INTO menu (name, price, image_url, status) VALUES (?, ?, ?, ?)", menu_items)
+
+    # Insert default admin if not exists
+    cur.execute("SELECT COUNT(*) FROM users WHERE username = 'admin'")
+    if cur.fetchone()[0] == 0:
+        cur.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", ('admin', '1234', 'admin'))
 
     conn.commit()
     conn.close()
-    print("✅ South Indian menu added successfully.")
-
-if __name__ == "__main__":
-    init_db()
-
-
-
+    print("✅ Database initialized with sample data.")
 
 def initialize_db():
-    conn = sqlite3.connect("menu.db")
+    conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
-    # Create orders table
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            table_id TEXT,
-            items TEXT,
-            instructions TEXT,
-            status TEXT DEFAULT 'Received',
-            timestamp TEXT
-        )
-    ''')
+    # Ensure the 'available' column exists in the 'menu' table
+    c.execute('PRAGMA table_info(menu)')
+    columns = [column[1] for column in c.fetchall()]
+    if 'available' not in columns:
+        c.execute('ALTER TABLE menu ADD COLUMN available INTEGER DEFAULT 1')
+        print("✅ Added 'available' column to 'menu' table.")
 
-    # Create menu table
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS menu (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            category TEXT,
-            name TEXT,
-            description TEXT,
-            price REAL,
-            image_url TEXT,
-            available INTEGER DEFAULT 1
-        )
-    ''')
+    # Ensure the 'image_url' column exists in the 'menu' table
+    if 'image_url' not in columns:
+        c.execute('ALTER TABLE menu ADD COLUMN image_url TEXT')
+        print("✅ Added 'image_url' column to 'menu' table.")
 
     conn.commit()
     conn.close()
 
-# Optional: Run it directly to test
+# Run the function to ensure DB is initialized correctly
 if __name__ == "__main__":
     initialize_db()
+    init_db()  # Initialize the database with the sample data
