@@ -17,13 +17,13 @@ def generate_qr(table_id, show_in_streamlit=True):
     Returns:
         str: Path to the saved QR code image.
     """
-    # Construct the URL to encode
+    # Construct the URL to encode, including the table_id as a query parameter
     url = f"{APP_BASE_URL}/?table_id={table_id}"
 
     # Generate the QR code
     qr_img = qrcode.make(url)
 
-    # Ensure the directory exists
+    # Ensure the directory exists for storing QR codes
     os.makedirs("qr_codes", exist_ok=True)
     file_path = os.path.join("qr_codes", f"{table_id}.png")
     qr_img.save(file_path)

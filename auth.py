@@ -38,7 +38,7 @@ def login_panel():
 
 def login_admin():
     """
-    Shortcut for checking if current session user is admin.
+    Shortcut for checking if the current session user is admin.
     """
     if 'role' in st.session_state and st.session_state['role'] == 'admin':
         return True

@@ -13,15 +13,13 @@ menu_items = [
     ("Uttapam", 40, "https://i.imgur.com/MzN7cWS.jpg", "Available")
 ]
 
-# Updated schema with 'image_url' and 'available' columns
 schema = """
 CREATE TABLE IF NOT EXISTS menu (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     price REAL NOT NULL,
-    image_url TEXT,
-    status TEXT,
-    available INTEGER DEFAULT 1
+    image TEXT,
+    status TEXT
 );
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -52,7 +50,7 @@ def init_db():
     cur.execute("DELETE FROM menu")
 
     # Insert new menu items
-    cur.executemany("INSERT INTO menu (name, price, image_url, status) VALUES (?, ?, ?, ?)", menu_items)
+    cur.executemany("INSERT INTO menu (name, price, image, status) VALUES (?, ?, ?, ?)", menu_items)
 
     # Insert default admin if not exists
     cur.execute("SELECT COUNT(*) FROM users WHERE username = 'admin'")
@@ -74,10 +72,26 @@ def initialize_db():
         c.execute('ALTER TABLE menu ADD COLUMN available INTEGER DEFAULT 1')
         print("✅ Added 'available' column to 'menu' table.")
 
-    # Ensure the 'image_url' column exists in the 'menu' table
-    if 'image_url' not in columns:
-        c.execute('ALTER TABLE menu ADD COLUMN image_url TEXT')
-        print("✅ Added 'image_url' column to 'menu' table.")
+    # Create orders table if not exists
+    c.execute('''CREATE TABLE IF NOT EXISTS orders (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        table_id TEXT,
+        items TEXT,
+        instructions TEXT,
+        status TEXT DEFAULT 'Received',
+        timestamp TEXT
+    )''')
+
+    # Create menu table if not exists
+    c.execute('''CREATE TABLE IF NOT EXISTS menu (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category TEXT,
+        name TEXT,
+        description TEXT,
+        price REAL,
+        image_url TEXT,
+        available INTEGER DEFAULT 1
+    )''')
 
     conn.commit()
     conn.close()
@@ -85,4 +99,4 @@ def initialize_db():
 # Run the function to ensure DB is initialized correctly
 if __name__ == "__main__":
     initialize_db()
-    init_db()  # Initialize the database with the sample data
+
